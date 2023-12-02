@@ -15,7 +15,35 @@ const kv = await Deno.openKv();
 
 const app = new Hono();
 
-app.use("/static/*", serveStatic({ root: "./" }));
+app.use("/pages/*", serveStatic({ root: "./" }));
+
+// front end
+app.get("/app/", async (ctx) => {
+  const HTML = await Deno.readTextFile("./layout/layout.html");
+  // Replace __DYNAMIC_SRC__ with the dynamic src value
+  // which is served by our servestatic in pages dir
+  const modifiedHTML = HTML.replace(/__DYNAMIC_SRC__/g, "/pages/quizzes.jsx");
+
+  return ctx.html(modifiedHTML);
+});
+
+app.get("/app/create", async (ctx) => {
+  const HTML = await Deno.readTextFile("./layout/layout.html");
+  // Replace __DYNAMIC_SRC__ with the dynamic src value
+  // which is served by our servestatic in pages dir
+  const modifiedHTML = HTML.replace(/__DYNAMIC_SRC__/g, "/pages/create.jsx");
+
+  return ctx.html(modifiedHTML);
+});
+
+app.get("/app/quiz", async (ctx) => {
+  const HTML = await Deno.readTextFile("./layout/layout.html");
+  // Replace __DYNAMIC_SRC__ with the dynamic src value
+  // which is served by our servestatic in pages dir
+  const modifiedHTML = HTML.replace(/__DYNAMIC_SRC__/g, "/pages/quiz.jsx");
+
+  return ctx.html(modifiedHTML);
+});
 
 // BACKEND
 interface QuizValue {
