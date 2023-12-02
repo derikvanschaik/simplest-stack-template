@@ -1,8 +1,17 @@
 // deno-lint-ignore-file no-explicit-any
+// deno kv unstable allow
+/// <reference lib="deno.unstable" />
+
 import { Hono } from "https://deno.land/x/hono@v3.10.4/mod.ts";
 import { serveStatic } from "https://deno.land/x/hono@v3.10.4/middleware.ts";
 
 const kv = await Deno.openKv();
+
+// drop everything
+// const entries = kv.list({ prefix: ["quiz"] });
+// for await (const entry of entries) {
+//   await kv.delete(entry.key);
+// }
 
 const app = new Hono();
 
@@ -35,13 +44,23 @@ app.get("/quiz/:name", async (ctx) => {
 app.post("quiz/:name", async (ctx) => {
   const data = await ctx.req.json();
   const question = data["question"];
-  const answer = data["answer"];
+  const type = data["type"];
   const quizName = ctx.req.param("name");
 
   const result = await kv.get<QuizValue>(["quiz", quizName]);
 
   const value = result.value;
-  value?.questions.push({ question, answer });
+
+  if (type == "basic") {
+    const answer = data["answer"];
+
+    value?.questions.push({ question, type, answer });
+  } else {
+    // type is multiple
+    const answers = data["answers"];
+    // answers is [{answer: string, correct: boolean}]
+    value?.questions.push({ question, type, answers });
+  }
 
   await kv.set(["quiz", quizName], value);
 

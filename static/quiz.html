@@ -21,6 +21,33 @@
     <div id="root"></div>
 
     <script type="text/babel">
+      function QuizQuestion({ question }) {
+        if (question.type === "basic") {
+          return (
+            <details>
+              <summary>{question.question}</summary>
+              <p>{question.answer}</p>
+            </details>
+          );
+        }
+        // multiple;
+        const [showAnswer, setShowAnswer] = React.useState(false);
+
+        return (
+          <div>
+            <p>{question.question}</p>
+            {question.answers.map((answer) => {
+              return (
+                <p>
+                  {answer.answer} {showAnswer && answer.correct && "<---"}
+                </p>
+              );
+            })}
+            <button onClick={() => setShowAnswer(true)}>Reveal Answer</button>
+          </div>
+        );
+      }
+
       function Quiz() {
         const [questions, setQuestions] = React.useState([]);
 
@@ -91,12 +118,7 @@
 
             <ul>
               {questions.map((question) => {
-                return (
-                  <details>
-                    <summary>{question.question}</summary>
-                    <p>{question.answer}</p>
-                  </details>
-                );
+                return <QuizQuestion question={question} />;
               })}
             </ul>
           </div>
